@@ -1,2 +1,45 @@
+:root {
+    --color-bg: #f4f5f1;
+    --color-surface: #ffffff;
+    --color-text: #17201b;
+    --color-text-secondary: #46524b;
+    --color-text-muted: #57625b;
+    --color-text-faint: #8a948e;
+    --color-primary: #1d6b55;
+    --color-primary-dark: #134a3b;
+    --color-primary-light: #e2eee8;
+    --color-border: #dde1da;
+    --color-border-strong: #c9cfc7;
+    --color-divider: #e6e9e3;
 
+    --font-main: Onest, system-ui, sans-serif;
+    --font-display: Unbounded, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
 
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-main);
+}
+
+button,
+input,
+select {
+    font-family: inherit;
+}
+
+a {
+    color: var(--color-primary);
+}
+
+a:hover {
+    color: var(--color-primary-dark);
+}
