@@ -1,17 +1,39 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { login, register } from '../../shared/auth'
 import logoWhite from '../../assets/icons/logo-white.svg'
 import authPattern from '../../assets/images/auth-pattern.svg'
 import './style.css'
 
 function LoginForm() {
+    const navigate = useNavigate()
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
+
+    async function handleSubmit(e) {
+        e.preventDefault()
+        setError('')
+        setLoading(true)
+        try {
+            await login(email, password)
+            navigate('/projects')
+        } catch (err) {
+            setError(err.message)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     return (
-        <form className="auth_form" onSubmit={(e) => e.preventDefault()}>
+        <form className="auth_form" onSubmit={handleSubmit}>
             <h1 className="auth_title">С возвращением</h1>
 
             <div className="auth_field">
-                <label htmlFor="l-email" className="auth_label">Эл. почта или логин</label>
-                <input id="l-email" className="auth_input" placeholder="student@university.ru" />
+                <label htmlFor="l-email" className="auth_label">Эл. почта</label>
+                <input id="l-email" type="email" className="auth_input" placeholder="student@university.ru"
+                    value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
 
             <div className="auth_field">
@@ -19,10 +41,15 @@ function LoginForm() {
                     <label htmlFor="l-pass" className="auth_label">Пароль</label>
                     <a href="#" className="auth_link">Забыли пароль?</a>
                 </div>
-                <input id="l-pass" type="password" className="auth_input" />
+                <input id="l-pass" type="password" className="auth_input"
+                    value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>
 
-            <Link to="/projects" className="auth_submit">Войти</Link>
+            {error && <div className="auth_error">{error}</div>}
+
+            <button type="submit" className="auth_submit" disabled={loading}>
+                {loading ? 'Входим…' : 'Войти'}
+            </button>
 
             <div className="auth_divider">
                 <div className="auth_divider_line"></div>
@@ -42,10 +69,31 @@ function LoginForm() {
 }
 
 function RegisterForm() {
+    const navigate = useNavigate()
     const [role, setRole] = useState('student')
+    const [firstName, setFirstName] = useState('')
+    const [lastName, setLastName] = useState('')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
+
+    async function handleSubmit(e) {
+        e.preventDefault()
+        setError('')
+        setLoading(true)
+        try {
+            await register({ first_name: firstName, last_name: lastName, email, password, role })
+            navigate('/projects')
+        } catch (err) {
+            setError(err.message)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     return (
-        <form className="auth_form auth_form--register" onSubmit={(e) => e.preventDefault()}>
+        <form className="auth_form auth_form--register" onSubmit={handleSubmit}>
             <h1 className="auth_title">Создать аккаунт</h1>
 
             <div className="auth_field">
@@ -71,26 +119,30 @@ function RegisterForm() {
             <div className="auth_grid">
                 <div className="auth_field">
                     <label htmlFor="r-name" className="auth_label">Имя</label>
-                    <input id="r-name" className="auth_input" />
+                    <input id="r-name" className="auth_input" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
                 </div>
                 <div className="auth_field">
                     <label htmlFor="r-last" className="auth_label">Фамилия</label>
-                    <input id="r-last" className="auth_input" />
+                    <input id="r-last" className="auth_input" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
                 </div>
             </div>
 
             <div className="auth_field">
                 <label htmlFor="r-email" className="auth_label">Эл. почта</label>
-                <input id="r-email" type="email" className="auth_input" />
+                <input id="r-email" type="email" className="auth_input" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
 
             <div className="auth_field">
                 <label htmlFor="r-pass" className="auth_label">Пароль</label>
-                <input id="r-pass" type="password" className="auth_input" />
+                <input id="r-pass" type="password" className="auth_input" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} required />
                 <span className="auth_hint">Не меньше 8 символов</span>
             </div>
 
-            <Link to="/projects" className="auth_submit">Зарегистрироваться</Link>
+            {error && <div className="auth_error">{error}</div>}
+
+            <button type="submit" className="auth_submit" disabled={loading}>
+                {loading ? 'Создаём…' : 'Зарегистрироваться'}
+            </button>
         </form>
     )
 }
