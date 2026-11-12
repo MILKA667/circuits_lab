@@ -28,9 +28,6 @@ def get_db_connection():
     )
 
 
-
-
-
 def make_token(user_id, role):
     now = datetime.now(timezone.utc)
     return jwt.encode(
@@ -85,10 +82,12 @@ def register():
         cur.execute(
             """INSERT INTO users (first_name, last_name, email, password, role)
                VALUES (%s, %s, %s, %s, %s)
-               RETURNING id, first_name, last_name, email, role""",
+               RETURNING id""",
             (first_name, last_name, email, generate_password_hash(password), role),
         )
-        user = user_to_dict(cur.fetchone())
+        user_id = cur.fetchone()[0]
+        user = {'id': user_id, 'first_name': first_name, 'last_name': last_name,
+                'email': email, 'role': role}
         conn.commit()
         return jsonify({'token': make_token(user['id'], role), 'user': user}), 201
 
@@ -127,7 +126,8 @@ def login():
         if not row or not check_password_hash(row[5], password):
             return jsonify({'error': 'Неверная почта или пароль'}), 401
 
-        user = user_to_dict(row)
+        user = {'id': row[0], 'first_name': row[1], 'last_name': row[2],
+                'email': row[3], 'role': row[4]}
         return jsonify({'token': make_token(user['id'], user['role']), 'user': user}), 200
 
     except DatabaseError as e:
@@ -155,4 +155,4 @@ def health_check():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
